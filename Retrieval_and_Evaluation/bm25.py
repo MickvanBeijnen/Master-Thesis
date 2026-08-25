@@ -373,8 +373,7 @@ rlm_variants = [
 
 cg_variants = [
     (d.name.replace("index_", ""), d)
-    # for d in sorted(WORK_DIR.glob(f"index_cg_{TOKENIZER}_*alpha_*"))
-    for d in sorted(WORK_DIR.glob(f"index_cg_expand_{TOKENIZER}_*alpha_*")) # Test for Doc Augmentation
+    for d in sorted(WORK_DIR.glob(f"index_cg_*{TOKENIZER}_*alpha_*"))
     if any(d.glob("segments*"))
 ]
 
