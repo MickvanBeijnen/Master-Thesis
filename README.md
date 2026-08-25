@@ -12,61 +12,61 @@ Install Python dependencies:
 pip install -r requirements.txt
 ```
 
-The Anserini fat-jar (bundled with Pyserini) is required for indexing, retrieval, and the custom Java analyzer. The fat-jar is auto-detected from the Pyserini installation.
+Export the Anserini fat-jar path (required for preprocessing and index building):
+
+```bash
+export FATJAR=$(python3 -c "import pyserini; from pathlib import Path; print(next((Path(pyserini.__file__).parent / 'resources' / 'jars').glob('anserini-*-fatjar.jar')))")
+```
 
 Compile the Java files before use:
 
 ```bash
-export FATJAR=$(python3 -c "import pyserini; from pathlib import Path; print(next((Path(pyserini.__file__).parent / 'resources' / 'jars').glob('anserini-*-fatjar.jar')))")
-
 javac -proc:none -cp "$FATJAR" Preprocessing/CustomRegexAnalyzer.java
 javac -proc:none -cp "$FATJAR" Term_Weighting_and_Index_Building/ReweightIndex.java
 ```
 
-## Pipeline
+---
 
 ### Step 1 — Preprocessing
 
-Preprocess both the MS-ORCAS document corpus and the ORCAS query file. Set `TOKENIZER_MODE` at the top of the script to one of `"anserini"`, `"symbol_anserini"`, or `"alphanum_anserini"`.
+First, generate the MS-ORCAS dataset:
 
 ```bash
-python Preprocessing/preprocess.py
+python Preprocessing/msorcas_generator.py
 ```
 
-`CustomRegexAnalyzer.class` must be in the same directory as the script when using `symbol_anserini` or `alphanum_anserini` modes.
+Then preprocess both the MS-ORCAS document corpus and the ORCAS query file. Set `TOKENIZER_MODE` at the top of the script to one of `"anserini"`, `"symbol_anserini"`, or `"alphanum_anserini"`. `CustomRegexAnalyzer.class` must be present in the same directory as the script when using `symbol_anserini` or `alphanum_anserini` modes.
+
+```bash
+python Preprocessing/msorcas_preprocesser.py
+```
+
+---
 
 ### Step 2 — Build baseline index
 
+The baseline index is built automatically by `bm25.py` if it does not already exist. Simply run:
+
 ```bash
-python -m pyserini.index.lucene \
-    --collection JsonCollection \
-    --input <corpus_dir> \
-    --index <index_dir> \
-    --generator DefaultLuceneDocumentGenerator \
-    --threads 8 \
-    --pretokenized
+python Retrieval_and_Evaluation/bm25.py
 ```
+
+This will build the index, run retrieval over all discovered variants, and write results to the results directory.
 
 ### Step 3 — Generate term weights
 
-**Craswell (Clickgraph PPR):**
+Configure paths and hyper-parameters at the top of each script, then run:
 
-```bash
-python Term_Weighting_and_Index_Building/craswell_weights.py \
-    --orcas       <orcas_preprocessed.tsv> \
-    --qrels-train <qrels_train.tsv> \
-    --corpus      <corpus.jsonl> \
-    --output      <clickgraph_weights_raw.tsv> \
-    --tokenizer   anserini \
-    --weight-by-tf
-```
-
-**Lavrenko (RLM):**
-
-Configure paths and hyperparameters at the top of the script, then:
+**Lavrenko (Relevance-Based Language Models):**
 
 ```bash
 python Term_Weighting_and_Index_Building/lavrenko_weights.py
+```
+
+**Craswell (Click-Graph PPR):**
+
+```bash
+python Term_Weighting_and_Index_Building/craswell_weights.py
 ```
 
 ### Step 4 — Sort weights into index traversal order
@@ -80,17 +80,28 @@ python Term_Weighting_and_Index_Building/sort_weights.py \
 
 ### Step 5 — Build reweighted index
 
-```bash
-java -cp ".:$FATJAR" -Xmx8g Term_Weighting_and_Index_Building/ReweightIndex \
-    <input_index> \
-    <output_dir> \
-    <tokenizer> \
-    <mode> <max_val> \
-    <weights_sorted.tsv> \
-    <alpha>
-```
+Reweighted indices are built using `ReweightIndex.java`. All modes use log-scaling to map raw weights into a fixed integer range `[1, max_val+1]`. Missing weights fall back to the original TF scaled by the corresponding coefficient.
 
-Modes: `rlm`, `rlm_multi`, `cg`, `cg_multi`, `combined`, `combined_multi`. See the file header for full argument documentation per mode.
+**Single-method interpolation** (`rlm` / `cg`):
+```
+new_tf = α·tf + (1−α)·weight
+```
+```bash
+java -cp ".:$FATJAR" -Xmx8g ReweightIndex \
+    <input_index> <output_dir> <tokenizer> rlm <max_val> <rlm_weights.tsv> <alpha>
+```
+Replace `rlm` with `cg` and provide the click-graph weights file to use click-graph weights instead. Append `_multi` to the mode name and pass a comma-separated list of alpha values to build all variants in a single pass.
+
+**Combined interpolation** (`combined` / `combined_multi`):
+```
+new_tf = α·tf + β·rlm_weight + (1−α−β)·cg_weight    (requires α + β ≤ 1)
+```
+```bash
+java -cp ".:$FATJAR" -Xmx8g ReweightIndex \
+    <input_index> <output_dir> <tokenizer> combined_multi <max_val_rlm> <max_val_cg> \
+    <rlm_weights.tsv> <cg_weights.tsv> <alpha1,alpha2,...> <beta1,beta2,...>
+```
+Note that `combined_multi` takes separate `max_val` parameters for RLM and click-graph weights. Invalid pairs where α + β > 1 are skipped automatically.
 
 ### Step 6 — Retrieval and evaluation
 
@@ -103,7 +114,12 @@ Configure paths at the top of each script. `bm25.py` auto-discovers reweighted i
 
 ## Dataset
 
-This codebase was developed using the MS ORCAS dataset. The preprocessed corpus and index are not included in this repository due to size.
+This codebase uses two datasets from the [MS MARCO](https://microsoft.github.io/msmarco/) project:
+
+- **MS MARCO** — the document corpus, available at [microsoft.github.io/msmarco](https://microsoft.github.io/msmarco/)
+- **ORCAS** — the click-based query dataset, available at [microsoft.github.io/msmarco/ORCAS.html](https://microsoft.github.io/msmarco/ORCAS.html)
+
+From these two datasets, `msorcas_generator.py` generates the intersecting dataset we refer to as **MS ORCAS** — containing only documents from MS MARCO that appear in ORCAS. The preprocessed corpus and index are not included in this repository due to size.
 
 ## Reference
 
