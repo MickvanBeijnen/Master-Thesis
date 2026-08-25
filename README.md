@@ -4,13 +4,15 @@ Master's thesis codebase implementing custom term-frequency weighting for first-
 
 ## Requirements
 
+Python 3.10 and Java 21 are required.
+
 Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Java 21 and the Anserini fat-jar (bundled with Pyserini) are required for indexing, retrieval, and the custom Java analyzer. The fat-jar is auto-detected from the Pyserini installation.
+The Anserini fat-jar (bundled with Pyserini) is required for indexing, retrieval, and the custom Java analyzer. The fat-jar is auto-detected from the Pyserini installation.
 
 Compile the Java files before use:
 
