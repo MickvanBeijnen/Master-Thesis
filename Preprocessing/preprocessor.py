@@ -1,5 +1,5 @@
 """
-preprocess.py
+preprocessor.py
 
 Unified preprocessing script for both ORCAS (queries) and MS-ORCAS (documents).
 Select the dataset and tokenizer pipeline via the CONFIGURATION section below.
