@@ -27,6 +27,18 @@ javac -proc:none -cp "$FATJAR" Term_Weighting_and_Index_Building/ReweightIndex.j
 
 ---
 
+### Step 0 — Obtain Datasets
+
+Before running the preprocessing pipeline, create a `Datasets/` folder in the root of the repository and place the raw MS MARCO and ORCAS dataset files inside it:
+
+```
+Datasets/
+├── msmarco.tsv
+└── orcas.tsv
+```
+
+Download links and version details can be found in the [Dataset](#dataset) section.
+
 ### Step 1 — Preprocessing
 
 First, generate the MS-ORCAS dataset:
@@ -116,8 +128,8 @@ Configure paths at the top of each script. `bm25.py` auto-discovers reweighted i
 
 This codebase uses two datasets from the [MS MARCO](https://microsoft.github.io/msmarco/) project:
 
-- **MS MARCO** — the document corpus, available at [microsoft.github.io/msmarco](https://microsoft.github.io/msmarco/)
-- **ORCAS** — the click-based query dataset, available at [microsoft.github.io/msmarco/ORCAS.html](https://microsoft.github.io/msmarco/ORCAS.html)
+- **MS MARCO Passage Ranking v1** — the document corpus (`collection.tsv`), available at [microsoft.github.io/msmarco](https://microsoft.github.io/msmarco/)
+- **ORCAS** — the full click-based query dataset (~18 million entries), available at [microsoft.github.io/msmarco/ORCAS.html](https://microsoft.github.io/msmarco/ORCAS.html)
 
 From these two datasets, `msorcas_generator.py` generates the intersecting dataset we refer to as **MS ORCAS** — containing only documents from MS MARCO that appear in ORCAS. The preprocessed corpus and index are not included in this repository due to size.
 
