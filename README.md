@@ -128,8 +128,8 @@ Configure paths at the top of each script. `bm25.py` auto-discovers reweighted i
 
 This codebase uses two datasets from the [MS MARCO](https://microsoft.github.io/msmarco/) project:
 
-- **MS MARCO Passage Ranking v1** — the document corpus (`collection.tsv`), available at [microsoft.github.io/msmarco](https://microsoft.github.io/msmarco/)
-- **ORCAS** — the full click-based query dataset (~18 million entries), available at [microsoft.github.io/msmarco/ORCAS.html](https://microsoft.github.io/msmarco/ORCAS.html)
+- **MS MARCO Document Ranking v1** — the document corpus (`msmarco-docs.tsv`), available on the [MS MARCO Datasets page](https://microsoft.github.io/msmarco/Datasets.html)
+- **ORCAS** — the full click-based query dataset (~18 million entries mapping to 1.4 million of the MS MARCO documents), available at [microsoft.github.io/msmarco/ORCAS.html](https://microsoft.github.io/msmarco/ORCAS.html)
 
 From these two datasets, `msorcas_generator.py` generates the intersecting dataset we refer to as **MS ORCAS** — containing only documents from MS MARCO that appear in ORCAS. The preprocessed corpus and index are not included in this repository due to size.
 
