@@ -133,6 +133,8 @@ This codebase uses two datasets from the [MS MARCO](https://microsoft.github.io/
 
 From these two datasets, `msorcas_generator.py` generates the intersecting dataset we refer to as **MS ORCAS** — containing only documents from MS MARCO that appear in ORCAS. The preprocessed corpus and index are not included in this repository due to size.
 
-## Reference
-
 Dai, Z., & Callan, J. (2020). Context-Aware Term Weighting For First Stage Passage Retrieval. *SIGIR 2020*.
+
+Lavrenko, V., & Croft, W. B. (2001). Relevance-Based Language Models. *SIGIR 2001*.
+
+Craswell, N., Szummer, M. (2007). Random Walks on the Click Graph. *SIGIR 2007*.
