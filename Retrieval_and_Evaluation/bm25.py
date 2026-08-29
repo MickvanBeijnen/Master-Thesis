@@ -47,6 +47,7 @@ ORCAS_PATH       = WORK_DIR / f"orcas_preprocessed_{TOKENIZER}.tsv"
 QRELS_TRAIN_PATH = WORK_DIR / f"qrels_{TOKENIZER}_train.tsv"
 
 RESULTS_DIR         = WORK_DIR / f"results"
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Reweighted index directories — produced by ReweightIndex.java
 # Set to None to skip retrieval over that variant
@@ -413,7 +414,7 @@ for variant_name, variant_index_dir in all_variants:
     if not any(Path(variant_index_dir).glob("segments*")):
         print(f"\n[{variant_name.upper()}] Skipped — index not found at {variant_index_dir}.")
         continue
-    output_path = WORK_DIR / "results" / f"results_test_{variant_name}.tsv"
+    output_path = RESULTS_DIR / f"results_test_{variant_name}.tsv"
     variants_to_run.append((variant_name, str(variant_index_dir), output_path))
 
 print(f"\nRunning retrieval for {len(variants_to_run)} variant(s) "

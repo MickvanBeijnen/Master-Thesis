@@ -43,15 +43,20 @@ from pyserini.search.lucene import LuceneSearcher
 
 # ── Fallback defaults (used only if no CLI args are given) ───────────────────
 TOKENIZER = "anserini"   # "anserini", "symbol" or "alphanum"
-METHOD = "lavrenko"      # "craswell" or "lavrenko"
+METHOD = "craswell"      # "craswell" or "lavrenko"
+DOC_AUG = False          # True for Document Augmentation Prototype, or False for regular Craswell
 
 WORK_DIR   = Path("..")
 INDEX_DIR = WORK_DIR / f"anserini_index_{TOKENIZER}"
 CHUNK_SIZE = 5_000_000
 
 if METHOD == "craswell":
-    WEIGHTS_PATH = WORK_DIR / f"clickgraph_weights_{TOKENIZER}_raw.tsv"
-    SORTED_PATH = WORK_DIR / f"clickgraph_weights_{TOKENIZER}_sorted.tsv"
+    if DOC_AUG:
+        WEIGHTS_PATH = WORK_DIR / f"clickgraph_expand_weights_{TOKENIZER}_raw.tsv"
+        SORTED_PATH = WORK_DIR / f"clickgraph_expand_weights_{TOKENIZER}_sorted.tsv"
+    else: 
+        WEIGHTS_PATH = WORK_DIR / f"clickgraph_weights_{TOKENIZER}_raw.tsv"
+        SORTED_PATH = WORK_DIR / f"clickgraph_weights_{TOKENIZER}_sorted.tsv"
 elif METHOD == "lavrenko":
     WEIGHTS_PATH = WORK_DIR / f"rlm_weights_{TOKENIZER}_raw.tsv"
     SORTED_PATH = WORK_DIR / f"rlm_weights_{TOKENIZER}_sorted.tsv"

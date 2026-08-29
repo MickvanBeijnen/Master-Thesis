@@ -74,7 +74,7 @@ INDEX_DIR        = WORK_DIR / f"anserini_index_{TOKENIZER}"
 # Raw (unsorted) output — pipe through sort_weights.py afterwards.
 # EXPAND = False → cg weights (for cg / cg_multi)
 # EXPAND = True  → expansion weights (for cg_expand)
-EXPAND = True
+EXPAND = False
 
 OUTPUT_FILE = WORK_DIR / (
     f"clickgraph_expand_weights_{TOKENIZER}_raw.tsv"
@@ -87,7 +87,7 @@ PPR_ALPHA = 0.15   # restart probability
 PPR_ITERS = 20     # power-iteration steps; 20 is typically well-converged
 
 # --- Term weight distribution (aggregate mode only) ---
-WEIGHT_BY_TF = True   # True → distribute doc score proportional to TF
+WEIGHT_BY_TF = True     # True → distribute doc score proportional to TF
                         # False → uniform over unique terms
 
 # --- Expansion hyperparameters (expand mode only) ---
