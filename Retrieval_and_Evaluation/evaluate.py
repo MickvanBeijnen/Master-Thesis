@@ -34,7 +34,7 @@ QRELS_PATH  = WORK_DIR / f"qrels_{TOKENIZER}_test.tsv"
 
 # Name of the baseline variant to compare all others against.
 # Must match the variant name auto-discovered from result files.
-SIGNIFICANCE_BASELINE = f"baseline_{TOKENIZER}"                 # For interpolation experiment
+SIGNIFICANCE_BASELINE = f"combined_{TOKENIZER}_maxvalrlm10_maxvalcg5_a1_00_b0_00"   # For interpolation experiment
 # SIGNIFICANCE_BASELINE = f"cg_anserini_maxval5_alpha_0_00"     # For Doc Aug Prototype
 
 # Significance level before Bonferroni correction
