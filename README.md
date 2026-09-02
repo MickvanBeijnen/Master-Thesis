@@ -1,4 +1,4 @@
-# Lightweight Term Weighting Strategies for First-Stage Passage Retrieval
+# Low-Cost Approaches for Improving First-Stage Passage Retrieval
 
 Master's thesis codebase implementing custom term-frequency weighting for first-stage passage retrieval using Lucene/Anserini indices, inspired by Dai et al. (2020).
 
